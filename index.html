@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Safari Portal Connect SDK - Internal Reference</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.cdnfonts.com/css/glacial-indifference" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/tomorrow-night.min.css"
+    />
+    <style>
+      :root {
+        --ink: #000000;
+        --charcoal: #545454;
+        --steel: #80858b;
+        --fog: #e9e9e9;
+        --white: #ffffff;
+        --paper: #fbfbfb;
+        --line: #e3e3e3;
+        --code-bg: #101113;
+        --head: "Glacial Indifference", "Montserrat", "Segoe UI", sans-serif;
+        --body: "Montserrat", "Segoe UI", Arial, sans-serif;
+        --mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--body);
+        font-weight: 300;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        max-width: 1180px;
+        margin: 0 auto;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      aside {
+        border-right: 1px solid var(--line);
+        padding: 38px 28px;
+        position: sticky;
+        top: 0;
+        align-self: start;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .wordmark {
+        font-family: var(--head);
+        font-weight: 400;
+        font-size: 18px;
+        letter-spacing: 0.34em;
+        text-indent: 0.34em;
+        line-height: 1.3;
+      }
+      .tagline {
+        font-family: var(--head);
+        font-size: 9px;
+        letter-spacing: 0.5em;
+        text-indent: 0.5em;
+        color: var(--steel);
+        margin-top: 4px;
+      }
+      .kicker {
+        margin-top: 26px;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--steel);
+      }
+
+      nav {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      nav a {
+        color: var(--charcoal);
+        text-decoration: none;
+        font-size: 14px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border-left: 2px solid transparent;
+      }
+      nav a:hover {
+        background: var(--fog);
+        color: var(--ink);
+      }
+      nav a.active {
+        color: var(--ink);
+        border-left-color: var(--ink);
+        font-weight: 500;
+      }
+
+      /* Content */
+      main {
+        padding: 56px 64px 120px;
+        max-width: 860px;
+      }
+
+      header.intro {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 34px;
+        margin-bottom: 8px;
+      }
+      h1 {
+        font-family: var(--head);
+        font-weight: 400;
+        font-size: 38px;
+        letter-spacing: 0.01em;
+        line-height: 1.15;
+      }
+      header.intro p {
+        margin-top: 14px;
+        color: var(--charcoal);
+        font-size: 16px;
+        max-width: 60ch;
+      }
+
+      section {
+        padding-top: 52px;
+        scroll-margin-top: 24px;
+      }
+      h2 {
+        font-family: var(--head);
+        font-weight: 400;
+        font-size: 25px;
+        letter-spacing: 0.01em;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      h3 {
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 15px;
+        margin-top: 26px;
+        letter-spacing: 0.02em;
+      }
+      p {
+        margin-top: 14px;
+        color: #2a2a2a;
+        font-size: 15.5px;
+        max-width: 64ch;
+      }
+      p code,
+      li code,
+      td code {
+        font-family: var(--mono);
+        font-size: 0.86em;
+        background: var(--fog);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: #1c1c1c;
+      }
+      ul {
+        margin-top: 12px;
+        padding-left: 22px;
+        color: #2a2a2a;
+        font-size: 15.5px;
+      }
+      li {
+        margin-top: 6px;
+      }
+      a.inline {
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* Code */
+      .codecard {
+        margin-top: 18px;
+        border-radius: 11px;
+        overflow: hidden;
+        border: 1px solid #24262b;
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.05),
+          0 12px 32px rgba(0, 0, 0, 0.07);
+      }
+      .codebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #181a1e;
+        border-bottom: 1px solid #24262b;
+        padding: 9px 14px;
+      }
+      .codebar .lang {
+        font-size: 10.5px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #868d96;
+      }
+      .copy {
+        font-family: var(--body);
+        font-size: 10.5px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #c7ccd2;
+        background: transparent;
+        border: 1px solid #33363c;
+        border-radius: 6px;
+        padding: 4px 12px;
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .copy:hover {
+        background: #26292f;
+        border-color: #45484f;
+        color: #fff;
+      }
+      .copy.done {
+        color: var(--white);
+        border-color: #45484f;
+      }
+      pre {
+        margin: 18px 0 0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .codecard pre {
+        margin: 0;
+        border-radius: 0;
+      }
+      pre code.hljs {
+        font-family: var(--mono);
+        font-size: 13.5px;
+        line-height: 1.7;
+        padding: 20px 22px;
+        background: var(--code-bg);
+        display: block;
+        overflow-x: auto;
+      }
+
+      /* Neutral-leaning syntax tones */
+      .hljs {
+        background: var(--code-bg);
+        color: #d7d9dc;
+      }
+      .hljs-comment,
+      .hljs-quote {
+        color: #6a6e73;
+        font-style: italic;
+      }
+      .hljs-keyword,
+      .hljs-literal,
+      .hljs-built_in {
+        color: #ffffff;
+        font-weight: 600;
+      }
+      .hljs-string,
+      .hljs-regexp,
+      .hljs-symbol {
+        color: #aab0b7;
+      }
+      .hljs-number {
+        color: #c9ced3;
+      }
+      .hljs-title,
+      .hljs-title.function_,
+      .hljs-property,
+      .hljs-attr,
+      .hljs-variable {
+        color: #e7e9eb;
+      }
+      .hljs-title.class_,
+      .hljs-type {
+        color: #ffffff;
+      }
+
+      .disclaimer {
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--ink);
+        background: #f3f3f3;
+        border-radius: 0 8px 8px 0;
+        padding: 15px 18px;
+        margin-bottom: 30px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: #2c2c2c;
+      }
+      .disclaimer .tag {
+        display: block;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--steel);
+        margin-bottom: 6px;
+      }
+      .disclaimer b {
+        font-weight: 600;
+      }
+
+      /* Callouts */
+      .note {
+        margin-top: 20px;
+        border-left: 3px solid var(--ink);
+        background: #f3f3f3;
+        padding: 14px 18px;
+        border-radius: 0 8px 8px 0;
+        font-size: 14.5px;
+        color: #2a2a2a;
+      }
+      .note b {
+        font-weight: 600;
+      }
+      .note.soft {
+        border-left-color: var(--steel);
+      }
+
+      table {
+        margin-top: 18px;
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        font-weight: 600;
+        color: var(--charcoal);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      footer {
+        margin-top: 80px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        color: var(--steel);
+        font-size: 13px;
+      }
+
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          position: static;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+        main {
+          padding: 40px 24px 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside>
+        <div class="wordmark">TRAVEL SOMMELIER</div>
+        <div class="tagline">WILD LUXURY</div>
+        <div class="kicker">Connect SDK</div>
+        <nav id="nav">
+          <a href="#overview">Overview</a>
+          <a href="#install">Install</a>
+          <a href="#auth">Authentication</a>
+          <a href="#client">Creating a client</a>
+          <a href="#accounts">Accounts &amp; scoping</a>
+          <a href="#pagination">Pagination</a>
+          <a href="#contacts">Contacts</a>
+          <a href="#files">Files</a>
+          <a href="#tasks">Tasks</a>
+          <a href="#users">Users</a>
+          <a href="#errors">Errors</a>
+          <a href="#config">Config &amp; resilience</a>
+          <a href="#ids">A note on IDs</a>
+          <a href="#extending">Adding an endpoint</a>
+        </nav>
+      </aside>
+
+      <main>
+        <div class="disclaimer">
+          <span class="tag">Third-party product notice</span>
+          Safari Portal and the Connect API are products of Safari Portal, owned and operated by
+          Safari Portal. They are <b>not</b> products of Travel Sommelier. This is an independent,
+          unofficial client that Travel Sommelier built for its own internal use against Safari
+          Portal's public Connect API. All Safari Portal names, trademarks, and intellectual
+          property belong to Safari Portal. Nothing here implies any affiliation with, endorsement
+          by, or ownership of Safari Portal, and no claim is made to the Safari Portal product or
+          API.
+        </div>
+        <header class="intro">
+          <h1>Safari Portal Connect SDK</h1>
+          <p>
+            Internal reference for the TypeScript client we use to talk to the Safari Portal
+            Connect API. Fully typed, handles auth and token refresh for you, and gives you arrays
+            by default with lazy streaming when you want it.
+          </p>
+        </header>
+
+        <section id="overview">
+          <h2>Overview</h2>
+          <p>
+            The SDK wraps the Connect API (accounts, contacts, files, tasks, users) behind a typed
+            client. You authenticate once, scope to an account, then call resources. It deals with
+            OAuth token refresh, pagination, retries, and timeouts so you do not have to.
+          </p>
+          <ul>
+            <li><b>Typed</b> end to end, including the responses and the query filters.</li>
+            <li><b>Array-first.</b> <code>list()</code> returns every item across all pages.</li>
+            <li>
+              <b>Resilient.</b> Per-request timeout, retry with backoff, and a single token refresh
+              on a 401.
+            </li>
+            <li><b>Extendable.</b> A new endpoint is a short class (see the last section).</li>
+          </ul>
+        </section>
+
+        <section id="install">
+          <h2>Install</h2>
+          <p>It is a private package, so install it straight from the repo:</p>
+          <pre><code class="language-bash">npm install git+https://github.com/TravelSommelier/safari-portal-connect.git</code></pre>
+          <p>Needs Node 18 or newer (it uses the built-in <code>fetch</code>).</p>
+        </section>
+
+        <section id="auth">
+          <h2>Authentication</h2>
+          <p>
+            The API authorizes per user through a browser sign-in (OAuth with PKCE). There is no
+            machine-to-machine login, so you mint tokens once and the SDK keeps them fresh after
+            that.
+          </p>
+          <h3>One-time setup</h3>
+          <p>
+            Run the authorize helper. It opens the Safari Portal sign-in, captures the tokens, and
+            writes them to <code>.tokens.json</code>.
+          </p>
+          <pre><code class="language-bash">npm run authorize</code></pre>
+          <h3>Token storage</h3>
+          <p>
+            Tokens live in a <code>TokenStore</code>. The SDK loads them on first use and writes the
+            rotated pair back after every refresh, so the refresh token never goes stale. Use the
+            bundled file store, or implement the interface for Redis, a database, or a secrets
+            manager.
+          </p>
+          <pre><code class="language-typescript">import { FileTokenStore, type TokenStore } from "safari-portal-connect"
+
+// bundled, file-backed
+const tokenStore = new FileTokenStore(".tokens.json")
+
+// or bring your own
+class RedisTokenStore implements TokenStore {
+  async load() {
+    const v = await redis.get("safari:tokens")
+    return v ? JSON.parse(v) : null
+  }
+  async save(tokens) {
+    await redis.set("safari:tokens", JSON.stringify(tokens))
+  }
+}</code></pre>
+          <div class="note">
+            <b>Keep <code>.tokens.json</code> out of version control.</b> It holds live
+            credentials. It is already in <code>.gitignore</code>.
+          </div>
+        </section>
+
+        <section id="client">
+          <h2>Creating a client</h2>
+          <p>
+            Pass the token store plus the app credentials. The client id and secret are what let the
+            SDK refresh the access token automatically when it expires.
+          </p>
+          <pre><code class="language-typescript">import { SafariPortalClient, FileTokenStore } from "safari-portal-connect"
+
+const client = new SafariPortalClient({
+  tokenStore: new FileTokenStore(".tokens.json"),
+  clientId: process.env.SAFARI_CLIENT_ID,
+  clientSecret: process.env.SAFARI_CLIENT_SECRET
+})</code></pre>
+          <p>
+            You can also pass <code>accessToken</code> (and <code>refreshToken</code>) directly
+            instead of a store if you are managing tokens yourself.
+          </p>
+        </section>
+
+        <section id="accounts">
+          <h2>Accounts &amp; scoping</h2>
+          <p>
+            Every resource lives under an account. List the accounts your token can act on, then
+            scope to one. Most of the time there is a single account, so <code>firstAccount()</code>
+            is the shortcut.
+          </p>
+          <pre><code class="language-typescript">// shortcut: scope to the first (usually only) account
+const acc = await client.firstAccount()
+
+// or pick one explicitly
+const accounts = await client.accounts.list()
+const acc = client.account(accounts[0].id)</code></pre>
+          <p>
+            <code>acc</code> exposes <code>contacts</code>, <code>files</code>, <code>tasks</code>,
+            and <code>users</code>.
+          </p>
+        </section>
+
+        <section id="pagination">
+          <h2>Pagination</h2>
+          <p>Same data, three shapes. Pick based on what you need.</p>
+          <table>
+            <tr>
+              <th>Call</th>
+              <th>Returns</th>
+              <th>Use when</th>
+            </tr>
+            <tr>
+              <td><code>list(params)</code></td>
+              <td>array of every item</td>
+              <td>you want all of it and will map/filter it</td>
+            </tr>
+            <tr>
+              <td><code>stream(params)</code></td>
+              <td>async generator</td>
+              <td>large sets, or you want to stop early</td>
+            </tr>
+            <tr>
+              <td><code>page(params)</code></td>
+              <td>one page + <code>meta</code></td>
+              <td>you need totals or manual paging</td>
+            </tr>
+          </table>
+          <pre><code class="language-typescript">// list: every traveler across all pages, as a plain array
+const travelers = await acc.contacts.list({ scope: "travelers" })
+const vips = travelers.filter((c) =&gt; c.tag_list.includes("vip"))
+
+// stream: lazy, stops fetching the moment you break
+for await (const c of acc.contacts.stream({ scope: "travelers" })) {
+  if (c.email === target) return c
+}
+
+// page: when you want meta (totals, next page)
+const page = await acc.contacts.page({ scope: "travelers", limit: 50 })
+console.log(page.data, page.meta.total_count, page.hasNextPage)
+const next = await page.nextPage()</code></pre>
+          <div class="note soft">
+            <b>Heads up:</b> <code>list()</code> fetches every page, so a single call can make
+            several requests. Set <code>limit</code> (max 100) to control page size, and prefer
+            <code>stream()</code> when you only need the first match.
+          </div>
+        </section>
+
+        <section id="contacts">
+          <h2>Contacts</h2>
+          <p>
+            Travelers, partners, and suppliers. The <code>type</code> field distinguishes them.
+            Reads return all types; writes are for travelers.
+          </p>
+          <pre><code class="language-typescript">// read
+const jane = await acc.contacts.get(123)
+const found = await acc.contacts.search({ q: "jane", scope: "travelers" })
+const all = await acc.contacts.list({ scope: "partners" })
+
+// write (travelers)
+const created = await acc.contacts.create({
+  first_name: "Jane",
+  last_name: "Doe",
+  email: "jane@example.com",
+  tag_list: "vip,honeymoon"
+})
+await acc.contacts.update(created.id, { preferred_name: "Janie" })</code></pre>
+        </section>
+
+        <section id="files">
+          <h2>Files</h2>
+          <p>
+            Files are trips or tour requests. They move through a status lifecycle (leads, pipeline,
+            confirmed, completed, archived). New files always start in <code>leads</code>.
+          </p>
+          <pre><code class="language-typescript">// search within a lifecycle scope
+const confirmed = await acc.files.search({ scope: "confirmed" })
+const myLeads = await acc.files.search({ scope: "leads", consultant_ids: [11] })
+
+// create and update
+const file = await acc.files.create({
+  file_name: "Smith Safari 2027",
+  priority: "high",
+  traveler_ids: [101, 102]
+})
+await acc.files.update(file.id, { priority: "top", tag_list: "honeymoon,africa" })</code></pre>
+          <div class="note soft">
+            <b>traveler_ids replaces, it does not append.</b> The array you send becomes the file's
+            complete traveler set. Omit the key to leave travelers unchanged; send <code>[]</code> to
+            clear them.
+          </div>
+        </section>
+
+        <section id="tasks">
+          <h2>Tasks</h2>
+          <p>To-dos attached to files. Read-only: list, search, get.</p>
+          <pre><code class="language-typescript">const overdue = await acc.tasks.search({ scope: "overdue" })
+const mine = await acc.tasks.search({ scope: "due-this-week", assigned_to_ids: [11] })</code></pre>
+          <div class="note">
+            <b>The tasks gotcha.</b> Once you add a filter like <code>file_ids</code>, the endpoint
+            switches to search mode, and search defaults <code>scope</code> to <code>overdue</code>.
+            So "give me this file's tasks" silently returns only the overdue ones. To get them all,
+            sweep the scopes and dedupe:
+          </div>
+          <pre><code class="language-typescript">const SCOPES = ["overdue", "due-today", "due-this-week", "upcoming", "completed", "tbd"] as const
+
+const byId = new Map()
+for (const scope of SCOPES) {
+  for (const t of await acc.tasks.search({ scope, file_ids: [fileId] })) {
+    byId.set(String(t.id), t)
+  }
+}
+const allTasks = [...byId.values()]</code></pre>
+        </section>
+
+        <section id="users">
+          <h2>Users</h2>
+          <p>
+            The team members on the account. Read-only. Mostly used to turn the user ids on files
+            and tasks (<code>consultant_id</code>, <code>assigned_to_id</code>) into names.
+          </p>
+          <pre><code class="language-typescript">const team = await acc.users.list()
+const nameById = new Map(team.map((u) =&gt; [String(u.id), u.name]))
+
+const alice = await acc.users.get(11)</code></pre>
+        </section>
+
+        <section id="errors">
+          <h2>Errors</h2>
+          <p>
+            Every failure is a <code>SafariError</code> subclass. Non-2xx responses throw
+            <code>SafariApiError</code> with the status and a set of helpers.
+          </p>
+          <table>
+            <tr>
+              <th>Class</th>
+              <th>When</th>
+            </tr>
+            <tr>
+              <td><code>SafariApiError</code></td>
+              <td>
+                non-2xx response. Has <code>status</code>, <code>title</code>,
+                <code>description</code>, and <code>isUnauthorized</code> / <code>isForbidden</code>
+                / <code>isNotFound</code> / <code>isValidationError</code> /
+                <code>isRateLimited</code> / <code>isServerError</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>SafariTimeoutError</code></td>
+              <td>the request passed the configured timeout</td>
+            </tr>
+            <tr>
+              <td><code>SafariNetworkError</code></td>
+              <td>the underlying fetch failed (DNS, reset, offline)</td>
+            </tr>
+            <tr>
+              <td><code>SafariAuthError</code></td>
+              <td>a refresh was needed but no tokens were available</td>
+            </tr>
+          </table>
+          <pre><code class="language-typescript">import { SafariApiError } from "safari-portal-connect"
+
+try {
+  await acc.contacts.create({ first_name: "", last_name: "" })
+} catch (e) {
+  if (e instanceof SafariApiError &amp;&amp; e.isValidationError) {
+    console.log(e.description) // "First name can't be blank, ..."
+  } else {
+    throw e
+  }
+}</code></pre>
+        </section>
+
+        <section id="config">
+          <h2>Config &amp; resilience</h2>
+          <p>
+            Sensible defaults are built in. Override timeout, retry policy, or wire up hooks for
+            logging and token persistence.
+          </p>
+          <pre><code class="language-typescript">new SafariPortalClient({
+  tokenStore,
+  clientId,
+  clientSecret,
+  timeoutMs: 30_000, // per request, default 30s
+  retry: { maxRetries: 2, baseMs: 300, maxMs: 5_000 },
+  hooks: {
+    onRequest: ({ method, url, attempt }) =&gt; {},
+    onResponse: ({ status, durationMs }) =&gt; {},
+    onRetry: ({ reason, delayMs }) =&gt; log.warn("retrying", reason),
+    onTokens: (tokens) =&gt; persist(tokens)
+  }
+})</code></pre>
+          <ul>
+            <li>
+              Retries cover network errors, timeouts, and 5xx on safe methods, plus
+              <code>429</code> on any method (it respects <code>Retry-After</code>).
+            </li>
+            <li>
+              On a <code>401</code> the client refreshes once and retries, then writes the rotated
+              tokens back to the store.
+            </li>
+          </ul>
+        </section>
+
+        <section id="ids">
+          <h2>A note on IDs</h2>
+          <p>
+            Connect resource ids are 64-bit, which is bigger than a JavaScript number can hold
+            exactly. The SDK parses them losslessly, so large ids come back as exact strings and
+            smaller ones as numbers. That is why id types are <code>number | string</code>.
+          </p>
+          <p>
+            You rarely need to think about it. Pass ids straight back into calls and they work. If
+            you key a map or compare ids, normalize with <code>String(id)</code> so a string id and
+            a number id of the same value match.
+          </p>
+          <pre><code class="language-typescript">const byId = new Map(team.map((u) =&gt; [String(u.id), u]))
+const user = byId.get(String(task.assigned_to_id))</code></pre>
+        </section>
+
+        <section id="extending">
+          <h2>Adding an endpoint</h2>
+          <p>
+            When the API ships a new resource, adding it is three small steps. The base classes give
+            you <code>list</code>, <code>page</code>, <code>stream</code>, and <code>get</code> for
+            free; <code>WritableResource</code> adds <code>create</code> and <code>update</code>.
+          </p>
+          <pre><code class="language-typescript">// 1. a model (src/models/note.ts)
+export interface Note {
+  id: Id
+  body: string
+}
+
+// 2. a resource (src/resources/notes.ts)
+import { ReadableResource } from "../resources/base.js"
+
+export class NotesResource extends ReadableResource&lt;Note&gt; {
+  protected readonly resourcePath = "notes"
+}
+
+// 3. register it on the account (src/account.ts)
+this.notes = new NotesResource(http, accountId)</code></pre>
+          <p>
+            That is the whole pattern. Use <code>WritableResource</code> instead and set
+            <code>bodyKey</code> if the endpoint supports writes.
+          </p>
+        </section>
+
+        <footer>
+          Travel Sommelier internal reference. Source and full changelog in the
+          <a class="inline" href="https://github.com/TravelSommelier/safari-portal-connect"
+            >safari-portal-connect</a
+          >
+          repo.
+        </footer>
+      </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <script>
+      hljs.highlightAll()
+
+      // Wrap each code block in a card with a language label and a copy button.
+      document.querySelectorAll("pre > code").forEach((code) => {
+        const pre = code.parentElement
+        const match = code.className.match(/language-(\w+)/)
+        const lang = match ? match[1] : "code"
+
+        const card = document.createElement("figure")
+        card.className = "codecard"
+
+        const bar = document.createElement("figcaption")
+        bar.className = "codebar"
+
+        const label = document.createElement("span")
+        label.className = "lang"
+        label.textContent = lang === "bash" ? "shell" : lang
+
+        const btn = document.createElement("button")
+        btn.type = "button"
+        btn.className = "copy"
+        btn.textContent = "Copy"
+        btn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(code.textContent)
+            btn.textContent = "Copied"
+            btn.classList.add("done")
+            setTimeout(() => {
+              btn.textContent = "Copy"
+              btn.classList.remove("done")
+            }, 1400)
+          } catch {
+            btn.textContent = "Press Ctrl+C"
+          }
+        })
+
+        bar.appendChild(label)
+        bar.appendChild(btn)
+        pre.parentNode.insertBefore(card, pre)
+        card.appendChild(bar)
+        card.appendChild(pre)
+      })
+
+      // Highlight the nav item for the section in view.
+      const links = [...document.querySelectorAll("#nav a")]
+      const byId = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]))
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              links.forEach((a) => a.classList.remove("active"))
+              byId.get(e.target.id)?.classList.add("active")
+            }
+          }
+        },
+        { rootMargin: "-10% 0px -80% 0px" }
+      )
+      document.querySelectorAll("section[id]").forEach((s) => observer.observe(s))
+    </script>
+  </body>
+</html>
