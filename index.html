@@ -382,6 +382,9 @@
           <a href="#files">Files</a>
           <a href="#tasks">Tasks</a>
           <a href="#users">Users</a>
+          <a href="#reference">Categories &amp; stages</a>
+          <a href="#financials">Invoices &amp; expenses</a>
+          <a href="#events">File events</a>
           <a href="#errors">Errors</a>
           <a href="#config">Config &amp; resilience</a>
           <a href="#ids">A note on IDs</a>
@@ -635,6 +638,85 @@ const allTasks = [...byId.values()]</code></pre>
 const nameById = new Map(team.map((u) =&gt; [String(u.id), u.name]))
 
 const alice = await acc.users.get(11)</code></pre>
+        </section>
+
+        <section id="reference">
+          <h2>Categories &amp; stages</h2>
+          <p>
+            Reference lists for turning the id fields on a file into names. Both are read-only and
+            return the whole set in one call (not paginated). <code>categories</code> covers trip
+            types, regions, and lead sources; <code>stages</code> are the pipeline stages a file
+            moves through.
+          </p>
+          <pre><code class="language-typescript">const categories = await acc.categories.list({ type: "trip_type" })
+const stages = await acc.stages.list()
+
+const catName = new Map(categories.map((c) =&gt; [String(c.id), c.name]))
+
+const file = await acc.files.get(345151)
+const tripType = catName.get(String(file.trip_type_category_id))</code></pre>
+          <div class="note">
+            <b>These endpoints were renamed.</b> They live at <code>/file_categories</code> and
+            <code>/file_stages</code>; the older <code>/categories</code> and <code>/stages</code>
+            paths now return 404. The accessor names (<code>acc.categories</code>,
+            <code>acc.stages</code>) are unchanged, so the move is invisible from the client.
+          </div>
+        </section>
+
+        <section id="financials">
+          <h2>Invoices &amp; expenses</h2>
+          <p>
+            Two mirror-image resources. <b>Invoices</b> are money coming in (receivable);
+            <b>expenses</b> are money going out to suppliers (payable). Both are read-only:
+            <code>list</code> / <code>page</code> / <code>stream</code> / <code>get</code>, where
+            <code>get</code> returns the full payment breakdown.
+          </p>
+          <pre><code class="language-typescript">// invoices - needs invoices:read
+const invoices = await acc.invoices.list()
+const inv = await acc.invoices.get(9)
+inv.balance_due // still owed, in minor units
+inv.payments // each carries direction "receivable"
+
+// expenses - needs expenses:read
+const expenses = await acc.expenses.list()
+const exp = await acc.expenses.get(51)
+exp.pay_to_id // the supplier contact
+exp.payments // each carries direction "payable"</code></pre>
+          <div class="note">
+            <b>Amounts are in minor units.</b> An <code>amount</code> of <code>11820400</code> is
+            118,204.00 in a two-decimal currency. Divide by 10^(currency decimals) - most are /100,
+            but zero-decimal currencies like JPY and ISK are not. Format with
+            <code>Intl.NumberFormat</code> rather than hardcoding /100.
+          </div>
+          <div class="note soft">
+            <b>An expense has no single total or currency.</b> Unlike an invoice, each of an
+            expense's payments carries its own <code>amount</code> and <code>currency</code>, so a
+            supplier payout can span currencies. Aggregate per currency; never sum across.
+          </div>
+        </section>
+
+        <section id="events">
+          <h2>File events</h2>
+          <p>
+            A file's activity timeline - status changes, proposal views, shares, payments, guest
+            form submissions. Read-only and nested under a file, so it is a method on
+            <code>acc.files</code> rather than a top-level resource. Newest first.
+          </p>
+          <pre><code class="language-typescript">const events = await acc.files.events(345151, { limit: 100 })
+
+for (const e of events) {
+  console.log(e.created_at, e.type, e.user_id)
+}
+
+// page() and stream() variants too
+const first = await acc.files.eventsPage(345151)
+for await (const e of acc.files.eventsStream(345151)) { /* ... */ }</code></pre>
+          <div class="note">
+            <b>Guest-facing events carry visitor metadata.</b> Events triggered by the end traveler
+            (proposal viewed, form submitted) include <code>request_location</code> and
+            <code>request_ip</code> - the visitor's approximate location and IP, not a team
+            member's. <code>user_id</code> is <code>null</code> for those.
+          </div>
         </section>
 
         <section id="errors">
