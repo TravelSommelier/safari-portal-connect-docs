@@ -385,6 +385,7 @@
           <a href="#reference">Categories &amp; stages</a>
           <a href="#financials">Invoices &amp; expenses</a>
           <a href="#events">File events</a>
+          <a href="#forms">Forms &amp; submissions</a>
           <a href="#errors">Errors</a>
           <a href="#config">Config &amp; resilience</a>
           <a href="#ids">A note on IDs</a>
@@ -716,6 +717,48 @@ for await (const e of acc.files.eventsStream(345151)) { /* ... */ }</code></pre>
             (proposal viewed, form submitted) include <code>request_location</code> and
             <code>request_ip</code> - the visitor's approximate location and IP, not a team
             member's. <code>user_id</code> is <code>null</code> for those.
+          </div>
+        </section>
+
+        <section id="forms">
+          <h2>Forms &amp; submissions</h2>
+          <p>
+            Forms are the account's drag-and-drop intake / lead-capture web forms (trip inquiry,
+            guest details, feedback, waivers). Both forms and their submissions are read-only and
+            share one scope, <code>forms:read</code>. The forms API returns metadata only - to see
+            what a form collects, read its submissions.
+          </p>
+          <pre><code class="language-typescript">const forms = await acc.forms.list()
+const form = await acc.forms.get(42)
+form.sqid // "wfm_..." public embed key; form.id is the API id</code></pre>
+          <p>
+            A submission is one completed form. It ties to a contact (and a file, when assigned) and
+            carries a self-contained <code>responses</code> array - each answer includes its own
+            <code>label</code>, <code>type</code>, <code>mapped_to</code>, and <code>value</code>, so
+            you never need the form definition to read it. Reach submissions three ways:
+          </p>
+          <pre><code class="language-typescript">// by form
+const subs = await acc.forms.submissions(42)
+
+// by contact
+const theirs = await acc.contacts.formSubmissions(301)
+
+// one submission by id
+const one = await acc.formSubmissions.get(9001)
+
+for (const r of one.responses) {
+  console.log(r.label, r.value) // r.mapped_to shows the synced contact/file field
+}</code></pre>
+          <div class="note">
+            <b>File answers are signed, expiring links.</b> When a response
+            <code>type</code> is <code>file</code>, its <code>value</code> is
+            <code>{ filename, url }</code> where <code>url</code> is a short-lived signed download.
+            Fetch it promptly - it is not stable.
+          </div>
+          <div class="note soft">
+            <b>Only completed submissions appear,</b> and a response is a snapshot from submit time,
+            so it can differ from the form's current state if the form was later edited. A submission
+            also outlives a soft-deleted form.
           </div>
         </section>
 
