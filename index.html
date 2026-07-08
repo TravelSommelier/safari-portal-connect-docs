@@ -385,6 +385,7 @@
           <a href="#reference">Categories &amp; stages</a>
           <a href="#financials">Invoices &amp; expenses</a>
           <a href="#events">File events</a>
+          <a href="#docs-nested">Itineraries &amp; lookbooks</a>
           <a href="#forms">Forms &amp; submissions</a>
           <a href="#errors">Errors</a>
           <a href="#config">Config &amp; resilience</a>
@@ -717,6 +718,31 @@ for await (const e of acc.files.eventsStream(345151)) { /* ... */ }</code></pre>
             (proposal viewed, form submitted) include <code>request_location</code> and
             <code>request_ip</code> - the visitor's approximate location and IP, not a team
             member's. <code>user_id</code> is <code>null</code> for those.
+          </div>
+        </section>
+
+        <section id="docs-nested">
+          <h2>Itineraries &amp; lookbooks</h2>
+          <p>
+            The two document types attached to a file. <b>Itineraries</b> are the dated, day-by-day
+            trip proposals; <b>lookbooks</b> are the inspiration / destination collections. Both are
+            read-only, nested under a file, and reuse <code>files:read</code> - if you can read the
+            file, you can read these. Both expose metadata only (title, who it was prepared for,
+            dates); the full document content is not part of the API.
+          </p>
+          <pre><code class="language-typescript">const itineraries = await acc.files.itineraries(345151)
+const confirmed = itineraries.find((i) =&gt; i.confirmed)
+const one = await acc.files.itinerary(345151, itineraries[0].id)
+
+const lookbooks = await acc.files.lookbooks(345151)</code></pre>
+          <div class="note">
+            <b>Every object carries a <code>version</code> (<code>v2</code> / <code>v3</code>).</b>
+            Safari Portal is migrating both document types to a new engine; an account is served by
+            one engine at a time, so all of an account's itineraries (or lookbooks) report the same
+            version. The shape is identical across versions - only the <code>version</code> value
+            differs, plus <code>confirmed</code> is <code>null</code> on <code>v3</code> itineraries
+            (which have no per-itinerary confirmed state yet). Treat <code>id</code> as opaque; a
+            retrieve with an id from the other engine returns 404.
           </div>
         </section>
 
