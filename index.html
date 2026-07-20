@@ -571,7 +571,7 @@ const next = await page.nextPage()</code></pre>
           </p>
           <pre><code class="language-typescript">// read
 const jane = await acc.contacts.get(123)
-const found = await acc.contacts.search({ q: "jane", scope: "travelers" })
+const found = await acc.contacts.list({ q: "jane", scope: "travelers" })
 const all = await acc.contacts.list({ scope: "partners" })
 
 // write (travelers)
@@ -590,9 +590,9 @@ await acc.contacts.update(created.id, { preferred_name: "Janie" })</code></pre>
             Files are trips or tour requests. They move through a status lifecycle (leads, pipeline,
             confirmed, completed, archived). New files always start in <code>leads</code>.
           </p>
-          <pre><code class="language-typescript">// search within a lifecycle scope
-const confirmed = await acc.files.search({ scope: "confirmed" })
-const myLeads = await acc.files.search({ scope: "leads", consultant_ids: [11] })
+          <pre><code class="language-typescript">// filter within a lifecycle scope - filters go straight to list()
+const confirmed = await acc.files.list({ scope: "confirmed" })
+const myLeads = await acc.files.list({ scope: "leads", consultant_ids: [11] })
 
 // create and update
 const file = await acc.files.create({
@@ -610,20 +610,20 @@ await acc.files.update(file.id, { priority: "top", tag_list: "honeymoon,africa" 
 
         <section id="tasks">
           <h2>Tasks</h2>
-          <p>To-dos attached to files. Read-only: list, search, get.</p>
-          <pre><code class="language-typescript">const overdue = await acc.tasks.search({ scope: "overdue" })
-const mine = await acc.tasks.search({ scope: "due-this-week", assigned_to_ids: [11] })</code></pre>
+          <p>To-dos attached to files. Read-only: list, get.</p>
+          <pre><code class="language-typescript">const overdue = await acc.tasks.list({ scope: "overdue" })
+const mine = await acc.tasks.list({ scope: "due-this-week", assigned_to_ids: [11] })</code></pre>
           <div class="note">
-            <b>The tasks gotcha.</b> Once you add a filter like <code>file_ids</code>, the endpoint
-            switches to search mode, and search defaults <code>scope</code> to <code>overdue</code>.
-            So "give me this file's tasks" silently returns only the overdue ones. To get them all,
+            <b>The tasks gotcha.</b> When you add a filter like <code>file_ids</code> without a
+            <code>scope</code>, the API defaults <code>scope</code> to <code>overdue</code>. So
+            "give me this file's tasks" silently returns only the overdue ones. To get them all,
             sweep the scopes and dedupe:
           </div>
           <pre><code class="language-typescript">const SCOPES = ["overdue", "due-today", "due-this-week", "upcoming", "completed", "tbd"] as const
 
 const byId = new Map()
 for (const scope of SCOPES) {
-  for (const t of await acc.tasks.search({ scope, file_ids: [fileId] })) {
+  for (const t of await acc.tasks.list({ scope, file_ids: [fileId] })) {
     byId.set(String(t.id), t)
   }
 }
@@ -730,11 +730,19 @@ for await (const e of acc.files.eventsStream(345151)) { /* ... */ }</code></pre>
             file, you can read these. Both expose metadata only (title, who it was prepared for,
             dates); the full document content is not part of the API.
           </p>
-          <pre><code class="language-typescript">const itineraries = await acc.files.itineraries(345151)
+          <pre><code class="language-typescript">// a single file's documents
+const itineraries = await acc.files.itineraries(345151)
 const confirmed = itineraries.find((i) =&gt; i.confirmed)
-const one = await acc.files.itinerary(345151, itineraries[0].id)
 
-const lookbooks = await acc.files.lookbooks(345151)</code></pre>
+// retrieve adds a `countries` array (populated for v3, [] for v2)
+const one = await acc.files.itinerary(345151, itineraries[0].id)
+one.countries // [{ id, code: "KE", name: "Kenya" }, ...]
+
+const lookbooks = await acc.files.lookbooks(345151)
+
+// account-wide index of published v3 documents, filterable by country
+const kenyaTrips = await acc.itineraries.list({ country_codes: ["KE", "TZ"] })
+const kenyaLooks = await acc.lookbooks.list({ country_codes: ["KE"] })</code></pre>
           <div class="note">
             <b>Every object carries a <code>version</code> (<code>v2</code> / <code>v3</code>).</b>
             Safari Portal is migrating both document types to a new engine; an account is served by
@@ -743,6 +751,13 @@ const lookbooks = await acc.files.lookbooks(345151)</code></pre>
             differs, plus <code>confirmed</code> is <code>null</code> on <code>v3</code> itineraries
             (which have no per-itinerary confirmed state yet). Treat <code>id</code> as opaque; a
             retrieve with an id from the other engine returns 404.
+          </div>
+          <div class="note soft">
+            <b>The account-wide indexes are v3-only.</b> <code>acc.itineraries</code> and
+            <code>acc.lookbooks</code> list an account's <b>published v3</b> documents across every
+            file (newest first, filter by <code>country_codes</code>). On a v2 account they return an
+            empty list - use the file-nested methods there. Retrieving a single document is always
+            file-nested (<code>acc.files.itinerary</code> / <code>acc.files.lookbook</code>).
           </div>
         </section>
 
